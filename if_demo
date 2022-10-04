@@ -1,0 +1,35 @@
+#!/bin/zsh
+if [ $# -eq 0 ]
+then
+    echo "Usage: $0 file"
+    exit 1
+elif [ -d "$1" ]
+then
+    nfiles=`ls "$1" | wc -w`
+    echo "The number of file in the directory is $nfiles"
+    exit 0
+else
+    ls "$1" 2> /dev/null | grep "$1" 2> /dev/null 1>&2
+    if [ $? -ne 0 ]
+    then
+        echo "$1: not found"
+        exit 1
+    fi
+    if [ -f "$1" ] 
+    then
+        filename="$1"
+        set `ls -il $filename`
+        # echo "$0\t$1\t$2\t$3\t$4\t$5\t$6\t$7\t$8\n"
+        shift 4
+        inode="$1"
+        size="$6"
+        # echo "$0\t$1\t$2\t$3\t$4\t$5\t$6\t$7\t$8\n"
+        echo "Name\t\tInode\t\tSize"
+        echo
+        echo "$filename\t$inode\t$size"
+        exit 0
+    else
+        echo "$0: argument must be an ordinary file or dictionary"
+        exit 1
+    fi
+fi
