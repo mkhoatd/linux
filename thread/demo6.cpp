@@ -9,13 +9,6 @@ const int NUM_THREADS = 1024; // Number of threads to create
 const int PT_SIZE = 1024;      // Size of the page table
 
 // Function to initialize a page table with the given size
-void initializePageTable(vector<double> &pt)
-{
-    for (int i = 0; i < PT_SIZE; i++)
-    {
-        pt[i] = i * 1.0;
-    }
-}
 
 void initPageTable(vector<vector<double> > &pt)
 {
@@ -31,8 +24,6 @@ void initPageTable(vector<vector<double> > &pt)
 struct thread_res
 {
     double threadSum;
-    int start;
-    int end;
     string message;
 };
 
@@ -58,14 +49,25 @@ void *threadFunction(void *args)
     }
     string message = ss.str();
     result->threadSum = threadSum;
-    result->start = start;
-    result->end = end;
     result->message = message;
     return result;
+}
+void gioithieu() {
+    const char* output=
+        "*******************************************************\n"
+        "* Bai thi ket thuc mon: Lap trinh tren Linux          *\n"
+        "* Ho va ten: Tran Dinh Minh Khoa                      *\n"
+        "* Nhom: Nh20.11                                       *\n"
+        "* Masv: 102200265                                     *\n"
+        "* De so: 06                                           *\n"
+        "*******************************************************\n";
+    std::cout<<output;
+
 }
 
 int main()
 {
+    gioithieu();
     // Create the page table and initialize it
     vector<vector<double> > pt(NUM_THREADS, vector<double>(PT_SIZE));
     initPageTable(pt);
