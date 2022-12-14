@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const int NUM_THREADS = 2; // Number of threads to create
+const int NUM_THREADS = 1024; // Number of threads to create
 const int PT_SIZE = 1024;      // Size of the page table
 
 // Function to initialize a page table with the given size
@@ -17,9 +17,22 @@ void initializePageTable(vector<double> &pt)
     }
 }
 
+void initPageTable(vector<vector<double> > &pt)
+{
+    for (int i = 0; i < NUM_THREADS; i++)
+    {
+        for (int j = 0; j < PT_SIZE; j++)
+        {
+            pt[i][j] = j * 1.0;
+        }
+    }
+}
+
 struct thread_res
 {
     double threadSum;
+    int start;
+    int end;
     string message;
 };
 
@@ -28,26 +41,25 @@ void *threadFunction(void *args)
 {
     // Get the thread number and the page table
     int threadNum = *(int *)args;
-    vector<double> pt(PT_SIZE);
-    initializePageTable(pt);
-
     // Calculate the range of page table indices that this thread will process
     int start = threadNum * PT_SIZE;
     int end = PT_SIZE+start-1;
 
     // Print the thread number and the range of indices that it will process
     stringstream ss;
-    ss<< "Thread " << threadNum << ": " << start << "-" << end << endl;
+    ss<< "Thread " << threadNum << " voi ThreadID "<<pthread_self() << " xu ly cac phan tu tu "<<start<< " den "<<end<<endl;
 
     // Calculate the sum of the page table elements in the given range
     double threadSum = 0;
     thread_res* result = (thread_res*) malloc(sizeof(thread_res));
-    for (int i = start; i < end; i++)
+    for (int i = 0; i < 1024; i++)
     {
-        threadSum += pt[i];
+        threadSum += i;
     }
     string message = ss.str();
     result->threadSum = threadSum;
+    result->start = start;
+    result->end = end;
     result->message = message;
     return result;
 }
@@ -55,8 +67,8 @@ void *threadFunction(void *args)
 int main()
 {
     // Create the page table and initialize it
-    vector<double> pt(PT_SIZE);
-    initializePageTable(pt);
+    vector<vector<double> > pt(NUM_THREADS, vector<double>(PT_SIZE));
+    initPageTable(pt);
 
     // Create the threads
     pthread_t threads[NUM_THREADS];
@@ -64,11 +76,9 @@ int main()
     double totalSum = 0;
     for (int i = 0; i < NUM_THREADS; i++)
     {
-        int *args = new int[sizeof(int) + sizeof(vector<double> *)];
+        int *args = (int*) malloc(sizeof(*args)); 
         // Set the thread number and page table pointer in the argument array
-        *(int *)args = i;
-        *(vector<double> **)(args + sizeof(int)) = &pt;
-
+        *args = i;
         // Create the thread and pass the argument array as the thread function's parameter
         pthread_create(&threads[i], NULL, threadFunction, args);
     }
